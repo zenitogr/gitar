@@ -6,12 +6,17 @@ async function loadEvents(client) {
     const eventFolders = fs.readdirSync(eventsPath);
 
     for (const folder of eventFolders) {
+        const folderPath = path.join(eventsPath, folder);
+        
+        // Check if it's actually a directory
+        if (!fs.statSync(folderPath).isDirectory()) continue;
+
         const eventFiles = fs
-            .readdirSync(path.join(eventsPath, folder))
+            .readdirSync(folderPath)
             .filter(file => file.endsWith('.js'));
 
         for (const file of eventFiles) {
-            const event = require(path.join(eventsPath, folder, file));
+            const event = require(path.join(folderPath, file));
             
             if (event.once) {
                 client.once(event.name, (...args) => event.execute(...args));
